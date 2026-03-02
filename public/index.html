@@ -41,11 +41,25 @@
                 class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
                 <i class="fa-solid fa-wallet text-xl"></i>
             </div>
+
         </header>
+
+        <div class="flex gap-2 mb-6 overflow-x-auto pb-2" style="-ms-overflow-style: none; scrollbar-width: none;">
+            <button id="btnFilterToday"
+                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Hoy</button>
+            <button id="btnFilterWeek"
+                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Esta
+                semana</button>
+            <button id="btnFilterMonth"
+                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white transition-colors outline-none">Este
+                mes</button>
+            <button id="btnFilterAll"
+                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Todo</button>
+        </div>
 
         <div class="bg-zinc-900 rounded-3xl p-6 mb-6 border border-zinc-800 relative overflow-hidden">
             <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
-            <p class="text-zinc-400 text-sm font-medium mb-2 relative z-10">Gastado este mes</p>
+            <p id="balanceLabel" class="text-zinc-400 text-sm font-medium mb-2 relative z-10">Gastado este mes</p>
             <h2 id="mainBalance" class="text-5xl font-black tracking-tighter relative z-10">$0</h2>
             <div id="insightBadge"
                 class="inline-flex items-center gap-2 bg-zinc-800/80 backdrop-blur-md rounded-full px-3 py-1.5 mt-4 relative z-10 border border-zinc-700/50">

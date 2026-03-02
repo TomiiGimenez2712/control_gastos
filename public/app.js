@@ -21,6 +21,14 @@ const btnMethodCash = document.getElementById('btnMethodCash');
 const btnTypeEsencial = document.getElementById('btnTypeEsencial');
 const btnTypeOcio = document.getElementById('btnTypeOcio');
 
+const btnFilterToday = document.getElementById('btnFilterToday');
+const btnFilterWeek = document.getElementById('btnFilterWeek');
+const btnFilterMonth = document.getElementById('btnFilterMonth');
+const btnFilterAll = document.getElementById('btnFilterAll');
+const balanceLabel = document.getElementById('balanceLabel');
+
+let currentFilter = 'month'; // Filtro predeterminado
+
 let trendChartInstance = null;
 let globalExpenses = [];
 let showingAllTransactions = false;
@@ -81,14 +89,21 @@ const isCurrentMonth = (dateStr) => {
     return dateStr.startsWith(currentMonth);
 };
 
-const renderTrendChart = (expenses) => {
+/**
+ * Dibuja el gráfico de curva suave con la data ya filtrada.
+ * @param {Array} filteredExpenses - Lista de gastos ya filtrados por fecha.
+ * @returns {void}
+ */
+const renderTrendChart = (filteredExpenses) => {
     if (trendChartInstance) trendChartInstance.destroy();
-    const dailyTotals = {};
-    const currentMonthExpenses = expenses.filter(e => isCurrentMonth(e.fecha)).reverse();
 
-    currentMonthExpenses.forEach(e => {
-        const day = e.fecha.split('-')[2].substring(0, 2);
-        dailyTotals[day] = (dailyTotals[day] || 0) + e.valor;
+    const dailyTotals = {};
+    const reversedExpenses = [...filteredExpenses].reverse();
+
+    reversedExpenses.forEach(e => {
+        const parts = e.fecha.split('T')[0].split('-');
+        const dateLabel = `${parts[2]}/${parts[1]}`; // Formato universal DD/MM
+        dailyTotals[dateLabel] = (dailyTotals[dateLabel] || 0) + e.valor;
     });
 
     const ctx = document.getElementById('trendChart').getContext('2d');
@@ -142,12 +157,19 @@ const renderTransactionsList = (expenses, showAll) => {
     viewAllBtn.textContent = showAll ? 'Ver menos' : 'Ver todos';
 };
 
+/**
+ * Renderiza la interfaz principal
+ * @param {Array} expenses - Lista de gastos sin filtrar.
+ * @returns {void}
+ */
 const renderApp = (expenses) => {
     globalExpenses = expenses;
-    const monthExpenses = expenses.filter(e => isCurrentMonth(e.fecha));
+
+    // Aplicamos el filtro seleccionado
+    const currentData = filterExpensesData(expenses, currentFilter);
 
     let total = 0, totalEsencial = 0, totalOcio = 0;
-    monthExpenses.forEach(e => {
+    currentData.forEach(e => {
         total += e.valor;
         if (e.tipo === 'Esencial') totalEsencial += e.valor;
         if (e.tipo === 'Ocio') totalOcio += e.valor;
@@ -156,6 +178,8 @@ const renderApp = (expenses) => {
     mainBalance.textContent = formatMoney(total);
     if (total > 0) {
         insightBadge.innerHTML = `<i class="fa-solid fa-chart-simple text-indigo-400 text-xs"></i><span class="text-xs font-semibold text-zinc-300">Mayoría en ${totalEsencial > totalOcio ? 'Esenciales' : 'Ocio'}</span>`;
+    } else {
+        insightBadge.innerHTML = `<span class="text-xs font-semibold text-zinc-300">Sin gastos en este período</span>`;
     }
 
     esencialAmount.textContent = formatMoney(totalEsencial);
@@ -166,8 +190,10 @@ const renderApp = (expenses) => {
         ocioBar.style.width = total > 0 ? `${(totalOcio / total) * 100}%` : '0%';
     }, 100);
 
-    renderTrendChart(monthExpenses);
-    renderTransactionsList(globalExpenses, showingAllTransactions);
+    renderTrendChart(currentData);
+
+    // Ahora la lista del final solo muestra los transacciones del periodo seleccionado
+    renderTransactionsList(currentData, showingAllTransactions);
 };
 
 const toggleAddModal = (show) => {
@@ -182,6 +208,81 @@ const toggleAddModal = (show) => {
         modalContent.classList.add('translate-y-full');
         setTimeout(() => { addExpenseModal.classList.add('hidden'); }, 300);
     }
+};
+
+/**
+ * Verifica si una fecha coincide con el día de hoy.
+ * @param {string} dateStr - Fecha en formato YYYY-MM-DD.
+ * @returns {boolean} True si es hoy.
+ */
+const checkIsToday = (dateStr) => {
+    const today = new Date();
+    const dateStrToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    return dateStr.startsWith(dateStrToday);
+};
+
+/**
+ * Verifica si una fecha pertenece a la semana actual (desde el lunes).
+ * @param {string} dateStr - Fecha en formato YYYY-MM-DD.
+ * @returns {boolean} True si es de esta semana.
+ */
+const checkIsCurrentWeek = (dateStr) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const distanceToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - distanceToMonday);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const [year, month, day] = dateStr.split('T')[0].split('-');
+    const expenseDate = new Date(year, month - 1, day);
+
+    return expenseDate >= startOfWeek && expenseDate <= today;
+};
+
+/**
+ * Filtra la lista de gastos según el filtro de tiempo activo.
+ * @param {Array} expenses - Lista completa de gastos.
+ * @param {string} filterType - Tipo de filtro a aplicar.
+ * @returns {Array} Gastos filtrados.
+ */
+const filterExpensesData = (expenses, filterType) => {
+    if (filterType === 'today') return expenses.filter(e => checkIsToday(e.fecha));
+    if (filterType === 'week') return expenses.filter(e => checkIsCurrentWeek(e.fecha));
+    if (filterType === 'month') return expenses.filter(e => isCurrentMonth(e.fecha));
+    return expenses;
+};
+
+/**
+ * Actualiza la interfaz visual de los botones de filtro y el título del balance.
+ * @param {HTMLElement} activeBtn - Botón seleccionado.
+ * @param {string} filterType - Tipo de filtro aplicado.
+ * @returns {void}
+ */
+const updateFilterUi = (activeBtn, filterType) => {
+    const allBtns = [btnFilterToday, btnFilterWeek, btnFilterMonth, btnFilterAll];
+    allBtns.forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('bg-zinc-800', 'text-zinc-400');
+    });
+    activeBtn.classList.remove('bg-zinc-800', 'text-zinc-400');
+    activeBtn.classList.add('bg-indigo-600', 'text-white');
+
+    if (filterType === 'today') balanceLabel.textContent = 'Gastado hoy';
+    else if (filterType === 'week') balanceLabel.textContent = 'Gastado esta semana';
+    else if (filterType === 'month') balanceLabel.textContent = 'Gastado este mes';
+    else balanceLabel.textContent = 'Gasto total histórico';
+};
+
+/**
+ * Cambia el filtro activo y recarga la vista.
+ * @param {string} filterType - El nuevo filtro.
+ * @param {HTMLElement} btnElement - El botón presionado.
+ * @returns {void}
+ */
+const applyFilter = (filterType, btnElement) => {
+    currentFilter = filterType;
+    updateFilterUi(btnElement, filterType);
+    renderApp(globalExpenses);
 };
 
 /**
@@ -288,6 +389,10 @@ openAddModalBtn.addEventListener('click', () => {
 closeModalBtn.addEventListener('click', () => toggleAddModal(false));
 addExpenseForm.addEventListener('submit', handleAddExpense);
 deleteExpenseBtn.addEventListener('click', handleDeleteExpense);
+btnFilterToday.addEventListener('click', () => applyFilter('today', btnFilterToday));
+btnFilterWeek.addEventListener('click', () => applyFilter('week', btnFilterWeek));
+btnFilterMonth.addEventListener('click', () => applyFilter('month', btnFilterMonth));
+btnFilterAll.addEventListener('click', () => applyFilter('all', btnFilterAll));
 
 const init = async () => {
     const data = await fetchExpenses();
