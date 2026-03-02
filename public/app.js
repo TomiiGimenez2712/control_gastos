@@ -21,6 +21,18 @@ const btnMethodCash = document.getElementById('btnMethodCash');
 const btnTypeEsencial = document.getElementById('btnTypeEsencial');
 const btnTypeOcio = document.getElementById('btnTypeOcio');
 
+// Vistas principales (referencias DOM para ruteo)
+const viewHome = document.getElementById('viewHome');
+const viewAnalysis = document.getElementById('viewAnalysis');
+const viewAccounts = document.getElementById('viewAccounts');
+const viewSettings = document.getElementById('viewSettings');
+
+// Navegación principal (añadidos recientemente con IDs)
+const navHome = document.getElementById('navHome');
+const navAnalysis = document.getElementById('navAnalysis');
+const navAccounts = document.getElementById('navAccounts');
+const navSettings = document.getElementById('navSettings');
+
 const btnFilterToday = document.getElementById('btnFilterToday');
 const btnFilterWeek = document.getElementById('btnFilterWeek');
 const btnFilterMonth = document.getElementById('btnFilterMonth');
@@ -501,6 +513,10 @@ viewAllBtn.addEventListener('click', () => {
     renderTransactionsList(globalExpenses, showingAllTransactions);
 });
 
+
+navSettings.addEventListener('click', () => switchAppView('viewSettings'));
+
+
 openAddModalBtn.addEventListener('click', () => {
     editingExpenseId = null;
     modalTitle.textContent = 'Nuevo Gasto';
@@ -518,6 +534,46 @@ btnFilterToday.addEventListener('click', () => applyFilter('today', btnFilterTod
 btnFilterWeek.addEventListener('click', () => applyFilter('week', btnFilterWeek));
 btnFilterMonth.addEventListener('click', () => applyFilter('month', btnFilterMonth));
 btnFilterAll.addEventListener('click', () => applyFilter('all', btnFilterAll));
+
+/**
+ * Alterna la visibilidad de las vistas de la aplicación para simular navegación nativa.
+ * @param {HTMLElement} activeView - El contenedor de la vista a mostrar.
+ * @param {HTMLElement} activeNavBtn - El botón a resaltar.
+ * @returns {void}
+ */
+const switchAppView = (activeView, activeNavBtn) => {
+    // 1. Ocultar todas
+    const allViews = [viewHome, viewAnalysis, viewAccounts, viewSettings];
+    allViews.forEach(view => {
+        if (view) view.classList.add('hidden');
+    });
+
+    // 2. Mostrar la seleccionada
+    if (activeView) activeView.classList.remove('hidden');
+
+    // 3. Apagar botones
+    const allNavBtns = [navHome, navAnalysis, navAccounts, navSettings];
+    allNavBtns.forEach(btn => {
+        if (btn) {
+            btn.classList.remove('text-white');
+            btn.classList.add('text-zinc-500');
+        }
+    });
+
+    // 4. Encender el seleccionado
+    if (activeNavBtn) {
+        activeNavBtn.classList.remove('text-zinc-500');
+        activeNavBtn.classList.add('text-white');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// Listeners de navegación
+navHome.addEventListener('click', () => switchAppView(viewHome, navHome));
+navAnalysis.addEventListener('click', () => switchAppView(viewAnalysis, navAnalysis));
+navAccounts.addEventListener('click', () => switchAppView(viewAccounts, navAccounts));
+navSettings.addEventListener('click', () => switchAppView(viewSettings, navSettings));
 
 const init = async () => {
     setupSettingsView();

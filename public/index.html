@@ -34,87 +34,90 @@
 
     <div class="max-w-md mx-auto px-5 pt-8">
 
-        <header class="flex justify-between items-center mb-8">
+        <div id="viewHome">
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <p class="text-zinc-400 text-sm font-medium mb-1">Hola, Tomi 👋</p>
+                    <h1 class="text-2xl font-bold tracking-tight">Tus finanzas</h1>
+                </div>
+                <div
+                    class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                    <span class="text-2xl font-black text-white">$</span>
+                </div>
+            </header>
+
+            <div class="flex gap-2 mb-6 overflow-x-auto pb-2" style="-ms-overflow-style: none; scrollbar-width: none;">
+                <button id="btnFilterToday"
+                    class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Hoy</button>
+                <button id="btnFilterWeek"
+                    class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Esta
+                    semana</button>
+                <button id="btnFilterMonth"
+                    class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white transition-colors outline-none">Este
+                    mes</button>
+                <button id="btnFilterAll"
+                    class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Todo</button>
+            </div>
+
+            <div class="bg-zinc-900 rounded-3xl p-6 mb-6 border border-zinc-800 relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
+                <p id="balanceLabel" class="text-zinc-400 text-sm font-medium mb-2 relative z-10">Gastado este mes</p>
+                <h2 id="mainBalance" class="text-5xl font-black tracking-tighter relative z-10">$0</h2>
+                <div id="insightBadge"
+                    class="inline-flex items-center gap-2 bg-zinc-800/80 backdrop-blur-md rounded-full px-3 py-1.5 mt-4 relative z-10 border border-zinc-700/50">
+                    <i class="fa-solid fa-bolt text-yellow-400 text-xs"></i>
+                    <span class="text-xs font-semibold text-zinc-300">Analizando...</span>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-lg font-bold mb-4 tracking-tight">Evolución</h3>
+                <div class="bg-zinc-900 rounded-3xl p-4 border border-zinc-800">
+                    <div class="chart-container"><canvas id="trendChart"></canvas></div>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h3 class="text-lg font-bold mb-4 tracking-tight">Distribución</h3>
+                <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 flex flex-col gap-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="font-semibold text-zinc-300"><i
+                                    class="fa-solid fa-house text-emerald-400 mr-2"></i>Esencial</span>
+                            <span id="esencialAmount" class="font-bold text-white">$0</span>
+                        </div>
+                        <div class="w-full bg-zinc-800 rounded-full h-3">
+                            <div id="esencialBar" class="bg-emerald-400 h-3 rounded-full transition-all duration-1000"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="font-semibold text-zinc-300"><i
+                                    class="fa-solid fa-gamepad text-purple-400 mr-2"></i>Ocio</span>
+                            <span id="ocioAmount" class="font-bold text-white">$0</span>
+                        </div>
+                        <div class="w-full bg-zinc-800 rounded-full h-3">
+                            <div id="ocioBar" class="bg-purple-400 h-3 rounded-full transition-all duration-1000"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div>
-                <p class="text-zinc-400 text-sm font-medium mb-1">Hola, Tomi 👋</p>
-                <h1 class="text-2xl font-bold tracking-tight">Tus finanzas</h1>
-            </div>
-            <div
-                class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <span class="text-2xl font-black text-white">$</span>
-            </div>
-        </header>
-
-        <div class="flex gap-2 mb-6 overflow-x-auto pb-2" style="-ms-overflow-style: none; scrollbar-width: none;">
-            <button id="btnFilterToday"
-                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Hoy</button>
-            <button id="btnFilterWeek"
-                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Esta
-                semana</button>
-            <button id="btnFilterMonth"
-                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white transition-colors outline-none">Este
-                mes</button>
-            <button id="btnFilterAll"
-                class="whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold bg-zinc-800 text-zinc-400 hover:text-white transition-colors outline-none">Todo</button>
-        </div>
-
-        <div class="bg-zinc-900 rounded-3xl p-6 mb-6 border border-zinc-800 relative overflow-hidden">
-            <div class="absolute -right-10 -top-10 w-32 h-32 bg-indigo-500 rounded-full blur-3xl opacity-20"></div>
-            <p id="balanceLabel" class="text-zinc-400 text-sm font-medium mb-2 relative z-10">Gastado este mes</p>
-            <h2 id="mainBalance" class="text-5xl font-black tracking-tighter relative z-10">$0</h2>
-            <div id="insightBadge"
-                class="inline-flex items-center gap-2 bg-zinc-800/80 backdrop-blur-md rounded-full px-3 py-1.5 mt-4 relative z-10 border border-zinc-700/50">
-                <i class="fa-solid fa-bolt text-yellow-400 text-xs"></i>
-                <span class="text-xs font-semibold text-zinc-300">Analizando...</span>
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <h3 class="text-lg font-bold mb-4 tracking-tight">Evolución</h3>
-            <div class="bg-zinc-900 rounded-3xl p-4 border border-zinc-800">
-                <div class="chart-container"><canvas id="trendChart"></canvas></div>
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <h3 class="text-lg font-bold mb-4 tracking-tight">Distribución</h3>
-            <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 flex flex-col gap-4">
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="font-semibold text-zinc-300"><i
-                                class="fa-solid fa-house text-emerald-400 mr-2"></i>Esencial</span>
-                        <span id="esencialAmount" class="font-bold text-white">$0</span>
-                    </div>
-                    <div class="w-full bg-zinc-800 rounded-full h-3">
-                        <div id="esencialBar" class="bg-emerald-400 h-3 rounded-full transition-all duration-1000"
-                            style="width: 0%"></div>
-                    </div>
+                <div class="flex justify-between items-end mb-4">
+                    <h3 class="text-lg font-bold tracking-tight">Últimos movimientos</h3>
+                    <button id="viewAllBtn"
+                        class="text-indigo-400 text-sm font-semibold cursor-pointer outline-none">Ver
+                        todos</button>
                 </div>
-                <div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="font-semibold text-zinc-300"><i
-                                class="fa-solid fa-gamepad text-purple-400 mr-2"></i>Ocio</span>
-                        <span id="ocioAmount" class="font-bold text-white">$0</span>
-                    </div>
-                    <div class="w-full bg-zinc-800 rounded-full h-3">
-                        <div id="ocioBar" class="bg-purple-400 h-3 rounded-full transition-all duration-1000"
-                            style="width: 0%"></div>
-                    </div>
+                <div id="transactionsList" class="flex flex-col gap-3">
+                    <p class="text-center text-zinc-500 text-sm py-4">Cargando...</p>
                 </div>
             </div>
-        </div>
 
-        <div>
-            <div class="flex justify-between items-end mb-4">
-                <h3 class="text-lg font-bold tracking-tight">Últimos movimientos</h3>
-                <button id="viewAllBtn" class="text-indigo-400 text-sm font-semibold cursor-pointer outline-none">Ver
-                    todos</button>
-            </div>
-            <div id="transactionsList" class="flex flex-col gap-3">
-                <p class="text-center text-zinc-500 text-sm py-4">Cargando...</p>
-            </div>
-        </div>
-
+        </div> <!-- cierre viewHome -->
         <!-- Secciones secundarias inicialmente ocultas -->
         <div id="viewAnalysis" class="hidden">
             <header class="mb-6">
@@ -201,9 +204,10 @@
 
     <nav
         class="fixed bottom-0 w-full bg-zinc-900/90 backdrop-blur-xl border-t border-zinc-800 pb-safe pt-2 px-6 pb-6 flex justify-between items-center z-40">
-        <button class="flex flex-col items-center gap-1 text-white p-2"><i class="fa-solid fa-house text-xl"></i><span
-                class="text-[10px] font-semibold">Inicio</span></button>
-        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors p-2"><i
+        <button id="navHome" class="flex flex-col items-center gap-1 text-white p-2"><i
+                class="fa-solid fa-house text-xl"></i><span class="text-[10px] font-semibold">Inicio</span></button>
+        <button id="navAnalysis"
+            class="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors p-2"><i
                 class="fa-solid fa-chart-pie text-xl"></i><span
                 class="text-[10px] font-semibold">Análisis</span></button>
 
@@ -214,9 +218,11 @@
             </button>
         </div>
 
-        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors p-2"><i
+        <button id="navAccounts"
+            class="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors p-2"><i
                 class="fa-solid fa-wallet text-xl"></i><span class="text-[10px] font-semibold">Cuentas</span></button>
-        <button class="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors p-2"><i
+        <button id="navSettings"
+            class="flex flex-col items-center gap-1 text-zinc-500 hover:text-white transition-colors p-2"><i
                 class="fa-solid fa-gear text-xl"></i><span class="text-[10px] font-semibold">Ajustes</span></button>
     </nav>
 
