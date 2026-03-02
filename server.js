@@ -152,5 +152,34 @@ app.post('/api/gastos', createExpense);
 app.put('/api/gastos/:id', updateExpense);
 app.delete('/api/gastos/:id', deleteExpense);
 
-const startServer = () => console.log(`🚀 Servidor en http://localhost:${portNumber}`);
+/**
+ * Mantiene el servidor de Render despierto realizando una petición HTTP a sí mismo cada 14 minutos.
+ * @param {string} appUrl - La URL pública de tu aplicación en Render.
+ * @returns {void}
+ */
+const preventSleepMode = (appUrl) => {
+    const fourteenMinutes = 14 * 60 * 1000; // Convertimos minutos a milisegundos
+
+    setInterval(async () => {
+        try {
+            const response = await fetch(appUrl);
+            console.log(`Ping de mantenimiento enviado. Servidor activo (Status: ${response.status})`);
+        } catch (error) {
+            console.error('Error en el ping automático:', error.message);
+        }
+    }, fourteenMinutes);
+};
+
+/**
+ * Inicia el servidor Express y activa el ping de mantenimiento.
+ * @returns {void}
+ */
+const startServer = () => {
+    console.log(`🚀 Servidor corriendo en el puerto ${portNumber}`);
+
+    const renderUrl = 'https://control-gastos-dibm.onrender.com/';
+    preventSleepMode(renderUrl);
+};
+
+// Levantamos el servidor
 app.listen(portNumber, startServer);
