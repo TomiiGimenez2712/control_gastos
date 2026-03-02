@@ -27,7 +27,16 @@ const btnFilterMonth = document.getElementById('btnFilterMonth');
 const btnFilterAll = document.getElementById('btnFilterAll');
 const balanceLabel = document.getElementById('balanceLabel');
 
+const topExpensesList = document.getElementById('topExpensesList');
+const mpTotalDisplay = document.getElementById('mpTotalDisplay');
+const cashTotalDisplay = document.getElementById('cashTotalDisplay');
+const budgetInput = document.getElementById('budgetInput');
+const saveBudgetBtn = document.getElementById('saveBudgetBtn');
+
+let analysisChartInstance = null;
+
 let currentFilter = 'month'; // Filtro predeterminado
+
 
 let trendChartInstance = null;
 let globalExpenses = [];
@@ -158,6 +167,110 @@ const renderTransactionsList = (expenses, showAll) => {
 };
 
 /**
+ * Renderiza el gráfico de torta y el top 3 de gastos en la pestaña de Análisis.
+ * @param {Array} filteredData - Datos de gastos filtrados.
+ * @returns {void}
+ */
+const renderAnalysisView = (filteredData) => {
+    // 1. Gráfico de Torta (Ocio vs Esencial)
+    if (analysisChartInstance) analysisChartInstance.destroy();
+
+    let ocio = 0, esencial = 0;
+    filteredData.forEach(e => {
+        if (e.tipo === 'Ocio') ocio += e.valor;
+        if (e.tipo === 'Esencial') esencial += e.valor;
+    });
+
+    const ctx = document.getElementById('analysisChart').getContext('2d');
+    analysisChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Esencial', 'Ocio'],
+            datasets: [{
+                data: [esencial, ocio],
+                backgroundColor: ['#34d399', '#a78bfa'], // Emerald y Purple
+                borderWidth: 0,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '75%',
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#a1a1aa', usePointStyle: true, padding: 20 } }
+            }
+        }
+    });
+
+    // 2. Top 3 Gastos Más Caros
+    topExpensesList.innerHTML = '';
+    const sortedExpenses = [...filteredData].sort((a, b) => b.valor - a.valor).slice(0, 3);
+
+    if (sortedExpenses.length === 0) {
+        topExpensesList.innerHTML = '<p class="text-zinc-500 text-sm text-center py-2">No hay gastos para analizar.</p>';
+        return;
+    }
+
+    sortedExpenses.forEach((e, index) => {
+        const { icon, color } = getIconForExpense(e.nombre, e.tipo);
+        const itemHTML = `
+            <div class="flex items-center justify-between bg-zinc-900 p-3 rounded-2xl border border-zinc-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-400 font-bold text-xs">
+                        #${index + 1}
+                    </div>
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center ${color}">
+                        <i class="fa-solid ${icon}"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm text-white capitalize">${e.nombre}</p>
+                        <p class="text-[10px] text-zinc-500 uppercase">${e.tipo}</p>
+                    </div>
+                </div>
+                <p class="font-bold text-sm text-rose-400">-${formatMoney(e.valor)}</p>
+            </div>
+        `;
+        topExpensesList.insertAdjacentHTML('beforeend', itemHTML);
+    });
+};
+
+/**
+ * Calcula y muestra los totales por método de pago en la pestaña Cuentas.
+ * @param {Array} filteredData - Datos de gastos filtrados.
+ * @returns {void}
+ */
+const renderAccountsView = (filteredData) => {
+    let mpTotal = 0, cashTotal = 0;
+
+    filteredData.forEach(e => {
+        if (e.metodoPago === 'Mercado Pago') mpTotal += e.valor;
+        if (e.metodoPago === 'Efectivo') cashTotal += e.valor;
+    });
+
+    mpTotalDisplay.textContent = formatMoney(mpTotal);
+    cashTotalDisplay.textContent = formatMoney(cashTotal);
+};
+
+/**
+ * Inicializa la lógica de la pestaña Ajustes (Presupuesto en LocalStorage).
+ * @returns {void}
+ */
+const setupSettingsView = () => {
+    const savedBudget = localStorage.getItem('gastoTrackBudget');
+    if (savedBudget) budgetInput.value = savedBudget;
+
+    saveBudgetBtn.addEventListener('click', () => {
+        const value = budgetInput.value;
+        if (value && !isNaN(value)) {
+            localStorage.setItem('gastoTrackBudget', value);
+            showToastNotification('Presupuesto actualizado 🎯', 'fa-solid fa-check');
+            renderApp(globalExpenses); // Forzamos un re-render para evaluar el color del balance
+        }
+    });
+};
+
+/**
  * Renderiza la interfaz principal
  * @param {Array} expenses - Lista de gastos sin filtrar.
  * @returns {void}
@@ -175,7 +288,16 @@ const renderApp = (expenses) => {
         if (e.tipo === 'Ocio') totalOcio += e.valor;
     });
 
+    // Lógica de color del Balance vs Presupuesto
+    const savedBudget = Number(localStorage.getItem('gastoTrackBudget')) || 0;
     mainBalance.textContent = formatMoney(total);
+
+    if (savedBudget > 0 && total > savedBudget) {
+        mainBalance.classList.replace('text-white', 'text-rose-500');
+    } else {
+        mainBalance.classList.replace('text-rose-500', 'text-white');
+    }
+
     if (total > 0) {
         insightBadge.innerHTML = `<i class="fa-solid fa-chart-simple text-indigo-400 text-xs"></i><span class="text-xs font-semibold text-zinc-300">Mayoría en ${totalEsencial > totalOcio ? 'Esenciales' : 'Ocio'}</span>`;
     } else {
@@ -194,6 +316,9 @@ const renderApp = (expenses) => {
 
     // Ahora la lista del final solo muestra los transacciones del periodo seleccionado
     renderTransactionsList(currentData, showingAllTransactions);
+    // --- NUEVAS LLAMADAS ---
+    renderAnalysisView(currentData);
+    renderAccountsView(currentData);
 };
 
 const toggleAddModal = (show) => {
@@ -395,6 +520,7 @@ btnFilterMonth.addEventListener('click', () => applyFilter('month', btnFilterMon
 btnFilterAll.addEventListener('click', () => applyFilter('all', btnFilterAll));
 
 const init = async () => {
+    setupSettingsView();
     const data = await fetchExpenses();
     renderApp(data);
 };

@@ -115,6 +115,88 @@
             </div>
         </div>
 
+        <!-- Secciones secundarias inicialmente ocultas -->
+        <div id="viewAnalysis" class="hidden">
+            <header class="mb-6">
+                <h1 class="text-2xl font-bold tracking-tight">Análisis Detallado</h1>
+                <p class="text-zinc-400 text-sm">Distribución de tu dinero</p>
+            </header>
+
+            <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 mb-6">
+                <div class="chart-container relative h-48 w-full">
+                    <canvas id="analysisChart"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-3 tracking-tight">Top 3 Gastos</h3>
+                <div id="topExpensesList" class="flex flex-col gap-2">
+                </div>
+            </div>
+        </div>
+
+        <div id="viewAccounts" class="hidden">
+            <header class="mb-6">
+                <h1 class="text-2xl font-bold tracking-tight">Mis Cuentas</h1>
+                <p class="text-zinc-400 text-sm">Gastos por método de pago</p>
+            </header>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 flex flex-col items-center text-center">
+                    <div
+                        class="w-12 h-12 rounded-full bg-sky-500/20 text-sky-400 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-wallet text-xl"></i>
+                    </div>
+                    <p class="text-zinc-400 text-xs font-bold uppercase tracking-wider">Mercado Pago</p>
+                    <p id="mpTotalDisplay" class="text-xl font-black text-white mt-1">$0</p>
+                </div>
+
+                <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 flex flex-col items-center text-center">
+                    <div
+                        class="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-money-bill-wave text-xl"></i>
+                    </div>
+                    <p class="text-zinc-400 text-xs font-bold uppercase tracking-wider">Efectivo</p>
+                    <p id="cashTotalDisplay" class="text-xl font-black text-white mt-1">$0</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="viewSettings" class="hidden">
+            <header class="mb-6">
+                <h1 class="text-2xl font-bold tracking-tight">Ajustes</h1>
+            </header>
+
+            <div class="flex flex-col gap-6">
+                <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800 flex items-center gap-4">
+                    <div
+                        class="w-14 h-14 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                        <span class="text-xl font-bold text-white">T</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg text-white">Tomás Giménez</p>
+                        <p class="text-xs text-zinc-400">GastoTrack Pro</p>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900 rounded-3xl p-5 border border-zinc-800">
+                    <label class="text-xs text-zinc-400 font-bold mb-2 block uppercase tracking-wider">Presupuesto
+                        Mensual</label>
+                    <p class="text-xs text-zinc-500 mb-3">Definí un límite para recibir alertas visuales si te pasás.
+                    </p>
+                    <div class="flex gap-2">
+                        <input type="number" id="budgetInput"
+                            class="w-full bg-zinc-800 text-white rounded-xl p-3 outline-none focus:ring-2 focus:ring-indigo-500 border border-zinc-700 font-semibold"
+                            placeholder="$0">
+                        <button id="saveBudgetBtn"
+                            class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 rounded-xl transition-colors outline-none">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <nav
